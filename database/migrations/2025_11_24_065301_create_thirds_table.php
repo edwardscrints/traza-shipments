@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('thirds', function (Blueprint $table) {
             $table->id(); 
             $table->string('third_name')->nullable()->comment('Nombre completo de la tercera persona');
-            $table->string('document_type')->comment('Tipo de documento');
+            $table->enum('document_type', ['CC', 'NIT', 'CE', 'PPT', 'TI'])->comment('Tipo de documento');
             $table->string('document_number')->unique()->comment('Número de documento');
             $table->enum('third_type', ['cliente remitente', 'conductor', 'transportadora'])->comment('Tipo de tercero');
             $table->string('third_address')->comment('Dirección del tercero');
