@@ -16,6 +16,7 @@ class Merchandise extends Model
         "mercan_name",
         "mercan_type",
         "mercan_rndc_id",
+        "mercan_califi",
         "is_active",
     ];
 
