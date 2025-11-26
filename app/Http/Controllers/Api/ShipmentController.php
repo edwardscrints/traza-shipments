@@ -12,10 +12,12 @@ use Illuminate\Validation\ValidationException;
 class ShipmentController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Obtener envío por número de seguimiento (PÚBLICO - sin autenticación)
      *
+     * @param  string  $tracking_number
      * @return \Illuminate\Http\Response
      */
+    
     public function index()
     {
         $shipments = Shipment::with([
@@ -216,4 +218,34 @@ class ShipmentController extends Controller
 
         return response()->json($shipment, 200);
     }
+
+    /**
+     * Obtener envío por número de seguimiento 
+     *
+     * @param  string  $tracking_number
+     * @return \Illuminate\Http\Response
+     */
+    public function getByTrackingNumber($tracking_number)
+    {
+        $shipment = Shipment::with([
+            'conductor',
+            'remitente',
+            'destinatario',
+            'mercancia',
+        ])->where('tracking_number', $tracking_number)->first();
+
+        if (!$shipment) {
+            return response()->json([
+                'message' => 'Envío no encontrado'
+            ], 404);
+        }
+
+        return response()->json($shipment, 200);
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
 }

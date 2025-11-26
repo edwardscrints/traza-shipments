@@ -16,6 +16,9 @@ use App\Http\Controllers\Api\AuthController;
 // Rutas públicas de autenticación
 Route::post('/login', [AuthController::class, 'login']);
 
+// Ruta pública para rastreo de envíos (sin autenticación)
+Route::get('/tracking/{tracking_number}', [App\Http\Controllers\Api\ShipmentController::class, 'getByTrackingNumber']);
+
 // Rutas protegidas (requieren autenticación)
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
