@@ -4,21 +4,22 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Shipment; 
-use App\Models\Third; 
-use App\Models\Merchandise;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Requests\ShipmentRequest;
+use App\Http\Resources\ShipmentResource;
 
 class ShipmentController extends Controller
 {
-    /**
-     * Obtener envío por número de seguimiento (PÚBLICO - sin autenticación)
+    /*
+     * Mostrar lista de envíos.
      *
      * @param  string  $tracking_number
-     * @return \Illuminate\Http\Response
      */
     
-    public function index()
+    public function index():JsonResource
     {
         $shipments = Shipment::with([
             'conductor',
@@ -29,80 +30,35 @@ class ShipmentController extends Controller
             'updater',
         
         ])->paginate(10);
-        return response()->json($shipments, 200);
-        return Third::where('is_active', true)
-        ->select('id', 'third_name', 'third_type')
-        ->get();
-        return Merchandise::where('is_active', true)
-        ->select('id', 'mercan_name', 'mercan_type')
-        ->get();
+        //return response()->json($shipments, 200);
+        return ShipmentResource::collection($shipments);
 
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Almacenar un nuevo envío en el almacenamiento.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(ShipmentRequest $request):JsonResponse
     {
-        $request->validate([
-              //Validaciones a partir de Fk y existencia en $request
-            'tracking_number' => 'sometimes|string|unique:shipments,tracking_number',
-            'origin' => 'sometimes|string|max:255',
-            'destination' => 'sometimes|string|max:255',
-            'status' => 'sometimes|in:En Alistamiento,Asignado a Vehiculo,En Transito,Despacho Finalizado,Cancelado,Devuelto',
-            'remesa' => 'sometimes|nullable|string|max:255',
-            'manifiesto' => 'sometimes|nullable|string|max:255',
-            'date_manifiesto' => 'sometimes|nullable|date',
-            'plate' => 'sometimes|nullable|string|max:20',
-            'weight' => 'sometimes|nullable|numeric|min:0',
-            'declared_price' => 'sometimes|nullable|numeric|min:0',
-            'is_active' => 'sometimes|boolean',
-            'observation' => 'sometimes|nullable|string',
-            'third_id_driver' => 'sometimes|exists:thirds,id',
-            'third_id_remite' => 'sometimes|exists:thirds,id',
-            'third_id_destin' => 'sometimes|exists:thirds,id',
-            'merchandise_id' => 'sometimes|exists:merchandises,id',   
+        
+        $shipment = Shipment::create($request->all() + [
+            'created_by' => auth()->id(),
         ]);
 
-
-        $shipment = Shipment::create([
-            'tracking_number' => $request->tracking_number,
-            'origin' => $request->origin,
-            'destination' => $request->destination,
-            'status' => $request->status,
-            'remesa' => $request->remesa,
-            'manifiesto' => $request->manifiesto,
-            'date_manifiesto' => $request->date_manifiesto,
-            'plate' => $request->plate,
-            'weight' => $request->weight,
-            'declared_price' => $request->declared_price,
-            'is_active' => $request->is_active,
-            'observation' => $request->observation,
-            'third_id_driver' => $request->third_id_driver,
-            'third_id_remite' => $request->third_id_remite,
-            'third_id_destin' => $request->third_id_destin,
-            'merchandise_id' => $request->merchandise_id,
-            'created_by' => auth()->id(),
-        ], 201);
-
-        return response()->json($shipment, 201);
-
-        if (!$shipment) {
-            return response()->json(['message' => 'Error al crear el envío'], 500);
-        }
+        return response()->json([
+            'success' => true,
+            'data' => new ShipmentResource($shipment)], 201);
 
     }
 
     /**
-     * Display the specified resource.
+     * Mostrar envio especifico
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($id):JsonResource
     {
         $shipment = Shipment::with([
             'conductor',
@@ -113,76 +69,37 @@ class ShipmentController extends Controller
             'updater',
         ])->findOrFail($id);
 
-        return response()->json($shipment, 200);
+        //return response()->json($shipment, 200);
+        return new ShipmentResource($shipment);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Actualizar envio existente
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(ShipmentRequest $request, $id):JsonResponse
     {
-        $request->validate([
-            'tracking_number' => 'sometimes|string|unique:shipments,tracking_number,' . $id,
-            'origin' => 'sometimes|string|max:255',
-            'destination' => 'sometimes|string|max:255',
-            'status' => 'sometimes|in:En Alistamiento,Asignado a Vehiculo,En Transito,Despacho Finalizado,Cancelado,Devuelto',
-            'remesa' => 'sometimes|nullable|string|max:255',
-            'manifiesto' => 'sometimes|nullable|string|max:255',
-            'date_manifiesto' => 'sometimes|nullable|date',
-            'plate' => 'sometimes|nullable|string|max:20',
-            'weight' => 'sometimes|nullable|numeric|min:0',
-            'declared_price' => 'sometimes|nullable|numeric|min:0',
-            'is_active' => 'sometimes|boolean',
-            'observation' => 'sometimes|nullable|string',
-            'third_id_driver' => 'sometimes|exists:thirds,id',
-            'third_id_remite' => 'sometimes|exists:thirds,id',
-            'third_id_destin' => 'sometimes|exists:thirds,id',
-            'merchandise_id' => 'sometimes|exists:merchandises,id',
-        ]);
-
+      
         $shipment = Shipment::findOrFail($id);
-        if (!$shipment) {
-            return response()->json(['message' => 'Envío no encontrado'], 404);
-        }
 
-        $shipment->update([
-            'tracking_number' => $request->tracking_number,
-            'origin' => $request->origin,
-            'destination' => $request->destination,
-            'status' => $request->status,
-            'remesa' => $request->remesa,
-            'manifiesto' => $request->manifiesto,
-            'date_manifiesto' => $request->date_manifiesto,
-            'plate' => $request->plate,
-            'weight' => $request->weight,
-            'declared_price' => $request->declared_price,
-            'is_active' => $request->is_active,
-            'observation' => $request->observation,
-            'third_id_driver' => $request->third_id_driver,
-            'third_id_remite' => $request->third_id_remite,
-            'third_id_destin' => $request->third_id_destin,
-            'merchandise_id' => $request->merchandise_id,
+        $shipment->update($request->all() + [
             'updated_by' => auth()->id(),
         ]);
+        $shipment->save();
 
-        return response()->json($shipment, 200);
-        
-        if(!$shipment) {
-            return response()->json(['message' => 'Error al actualizar el envío'], 500);
-        }
+        return response()->json([
+            'success' => true, 
+            'data' => new ShipmentResource($shipment)], 200);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Eliminar envío especificado
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($id):JsonResponse
     {
         $shipment = Shipment::findOrFail($id);
         $shipment->delete();
@@ -193,39 +110,40 @@ class ShipmentController extends Controller
     }
 
     /**
-     * Activate Shipment (is_active = true)
+     * Activar envío (is_active = true)
      * @param  int  $id
-     * @return \Illuminate\Http\Response
      */
-    public function activate($id)
+    public function activate($id):JsonResponse
     {
         $shipment = Shipment::findOrFail($id);
         $shipment->update(['is_active' => true]);
 
-        return response()->json($shipment, 200);
+        return response()->json([
+            'success' => true,
+            'data' => $shipment], 200);
         
     }
 
      /**
-     * Desactivate Shipment (is_active = false)
+     * Desactivar envío (is_active = false)
      * @param  int  $id
-     * @return \Illuminate\Http\Response
      */
-    public function desactivate($id) 
+    public function desactivate($id):JsonResponse
     {
         $shipment = Shipment::findOrFail($id);
         $shipment->update(['is_active' => false]);
 
-        return response()->json($shipment, 200);
+        return response()->json([
+            'success' => true,
+            'data' => $shipment], 200);
     }
 
     /**
      * Obtener envío por número de seguimiento 
      *
      * @param  string  $tracking_number
-     * @return \Illuminate\Http\Response
      */
-    public function getByTrackingNumber($tracking_number)
+    public function getByTrackingNumber($tracking_number):JsonResponse
     {
         $shipment = Shipment::with([
             'conductor',
@@ -240,11 +158,12 @@ class ShipmentController extends Controller
             ], 404);
         }
 
-        return response()->json($shipment, 200);
+        //return response()->json($shipment, 200);
+        return response()->json(new ShipmentResource($shipment), 200);
     }
 
     /**
-     * Display a listing of the resource.
+     * Mostrar una lista de envíos.
      *
      * @return \Illuminate\Http\Response
      */

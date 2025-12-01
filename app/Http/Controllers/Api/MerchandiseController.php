@@ -4,14 +4,15 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Merchandise;
-use Illuminate\Http\Request;
+use Illuminate\Http\Request;    
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class MerchandiseController extends Controller
 {
     /**
-     * Obtener lista de mercancías activas para dropdowns
+     * Obtener lista de mercancías activas 
      */
-    public function index()
+    public function index():JsonResponse
     {
         $merchandises = Merchandise::where('is_active', true)
             ->select('id', 'mercan_name', 'mercan_type')
