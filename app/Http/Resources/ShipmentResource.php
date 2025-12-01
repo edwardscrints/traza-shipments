@@ -30,7 +30,8 @@ class ShipmentResource extends JsonResource
             'third_id_driver' => $this->third_id_driver ?? 'Conductor no especificado',
             'third_id_remite' => $this->third_id_remite ?? 'Remitente no especificado',
             'third_id_destin' => $this->third_id_destin ?? 'Destinatario no especificado',
-            'merchandise_id' => $this->merchandise_id ?? 'Mercancía no especificada',   
+            'merchandise_id' => $this->merchandise_id ?? 'Mercancía no especificada',
+            'id' => $this->id,
         ];
     }
 }
