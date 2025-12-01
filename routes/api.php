@@ -9,11 +9,11 @@ use App\Http\Controllers\Api\AuthController;
 | API Routes
 |--------------------------------------------------------------------------
 |
-| patch (Actualizaciones parciaciales a un recurso, aplica solo a una columna)
+| patch (Actualizaciones parciaciales al estado del Envio "")
 |
 */
 
-// Rutas públicas de autenticación
+// Rutas pública de autenticación
 Route::post('/login', [AuthController::class, 'login']);
 
 // Ruta pública para rastreo de envíos (sin autenticación)

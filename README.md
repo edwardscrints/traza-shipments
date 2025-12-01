@@ -1,6 +1,6 @@
 # 📦 Traza Shipments - API REST
 
-Sistema de gestión de envíos y despachos con cumplimiento de normas RNDC (Registro Nacional de Despacho de Carga) de Colombia.
+Servicio de gestión de envíos y despachos con cumplimiento de normas RNDC (Registro Nacional de Despacho de Carga) de Colombia.
 
 
 
@@ -118,6 +118,7 @@ php artisan make:controller Api/ShipmentController --api
 
 ---
 
+
 ## 🗄️ Estructura de la Base de Datos
 
 ### Tablas Principales
@@ -168,6 +169,8 @@ php artisan make:controller Api/ShipmentController --api
 ---
 
 ##  Documentación de la API
+
+### Se trabajan los datos con REQUEST y RESOURCES para manejo y muestreo de informacion
 
 ### Base URL
 ```
@@ -262,11 +265,11 @@ Accept: application/json
       "origin": "Medellín",
       "destination": "Bogotá",
       "status": "Devuelto",
-      "remesa": null,
-      "manifiesto": null,
-      "date_manifiesto": null,
+      "remesa": "Remesa no especificada",
+      "manifiesto": "Manifiesto no especificada",
+      "date_manifiesto": "Fecha no especificada",
       "plate": "hft-983",
-      "weight": null,
+      "weight": "Peso no especificado",
       "declared_price": "7101747.29",
       "is_active": true,
       "observation": "Observaciones del envío",
@@ -317,12 +320,12 @@ GET /api/shipments/2
   "origin": "Cartagena",
   "destination": "Cartagena",
   "status": "Cancelado",
-  "remesa": null,
-  "manifiesto": null,
+  "remesa": "Remesa no especificada",
+  "manifiesto": "Manifiesto no especificado",
   "date_manifiesto": "2025-11-15T00:00:00.000000Z",
   "plate": "cpm-529",
   "weight": "4332.45",
-  "declared_price": null,
+  "declared_price": "Precio no especificado",
   "is_active": true,
   "observation": "Observación del envío",
   "third_id_driver": 64,
